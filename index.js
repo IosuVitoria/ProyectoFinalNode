@@ -1,21 +1,33 @@
 const express = require('express'); // Traemos la librería express. Crea la base de datos.
-const {connect} = require('./src/utils/db')
-const moviesRoutes = require('./src/API/routes/movies.routes')
-const cinemaRoutes = require('./src/API/routes/cinema.routes')
+const dotenv = require('dotenv');
+dotenv.config();
+const cloudinary = require('cloudinary').v2;
 
-const PORT = 5000;
+
+const productsRoutes = require('./src/api/routes/products.routes')
+const suppliersRoutes = require('./src/api/routes/suppliers.routes')
+const marketsRoutes = require('./src/api/routes/markets.routes')
+const userRoutes = require('./src/api/routes/users.routes')
+
+const {connect} = require('./src/utils/db')
+const { isAuth } = require('./src/middlewares/auth');
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET
+});
+
+const PORT = process.env.PORT;
 const app = express();
 connect();
-
-// Punto 6 del ejercicio V1.2 Terminar el CRUD de movies insertando las rutas.
 
 app.use(express.json());
 app.use(express.urlencoded({extended:false}))
 
-
-
-app.use("/movies", moviesRoutes);
-app.use("/cinemas", cinemaRoutes);
+app.use("/products", isAuth, productsRoutes);
+app.use("/suppliers", suppliersRoutes);
+app.use("/markets", marketsRoutes);
+app.use("/users", userRoutes);
 
 app.listen(PORT, ()=> console.log(`Conectado al puerto: ${PORT}`))
-
